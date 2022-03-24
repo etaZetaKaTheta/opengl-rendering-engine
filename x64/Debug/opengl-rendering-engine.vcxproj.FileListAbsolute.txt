@@ -1,1 +1,2 @@
 C:\Users\traut\Desktop\opengl-rendering-engine\opengl-rendering-engine\x64\Debug\opengl-rendering-engine.exe
+C:\Users\traut\Desktop\opengl-rendering-engine\x64\Debug\opengl-rendering-engine.exe
