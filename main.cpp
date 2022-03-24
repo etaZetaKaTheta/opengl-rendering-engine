@@ -1,5 +1,5 @@
 #include <iostream>
-#include "glad/glad.h"
+#include "libraries/include/glad/glad.h"
 
 int main()
 {
