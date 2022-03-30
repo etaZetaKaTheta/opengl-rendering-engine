@@ -8,4 +8,4 @@
 
 ### GLM for mathematics
 
-### Model loader (*UNKNOWN*)
+### Model loader (probably tinyobjloader)
