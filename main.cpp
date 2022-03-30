@@ -1,3 +1,14 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "stb/stb_image.hpp"
+
+#include "shader.h"
+#include "vbo.h"
+#include "ebo.h"
+#include "vao.h"
+#include "texture.h"
+
 #include <iostream>
 #include "glad/glad.h"
 #include "glfw/glfw3.h"
@@ -5,20 +16,6 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-// Vertex Shader source code
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-//Fragment Shader source code
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.1f, 0.3f, 0.4f, 1.0f);\n"
-"}\n\0";
 
 int main()
 {
@@ -29,10 +26,18 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLfloat vertices[] =
+	{ //     COORDINATES     /        COLORS      /   TexCoord  //
+		-0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // Lower left corner
+		-0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // Upper left corner
+		 0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // Upper right corner
+		 0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // Lower right corner
+	};
+
+
+	GLuint indices[] =
 	{
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f // Upper corner
+		0, 2, 1,
+		0, 3, 2
 	};
 	
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "opengl-rendering-engine", NULL, NULL);
@@ -48,56 +53,71 @@ int main()
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
+	Shader shaderProgram("default.vert", "default.frag");
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
+	VAO vao1;
+	vao1.bind();
 
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+	VBO vbo1(vertices, sizeof(vertices));
+	EBO ebo1(indices, sizeof(indices));
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	vao1.linkAttrib(vbo1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+	vao1.linkAttrib(vbo1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	vao1.linkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	vao1.unbind();
+	vbo1.unbind();
+	ebo1.unbind();
 
-	GLuint vao, vbo;
+	GLuint uniID = glGetUniformLocation(shaderProgram.id, "scale");
 
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
+	Texture amogus("textures/amogus.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	amogus.texUnit(shaderProgram, "tex0", 0);
 
-	glBindVertexArray(vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	//IMGUI_CHECKVERSION();
+	//ImGui::CreateContext();
+	//ImGuiIO& io = ImGui::GetIO(); //(void)io;
+	//ImGui::StyleColorsClassic();
+	//ImGui_ImplGlfw_InitForOpenGL(window, true);
+	//ImGui_ImplOpenGL3_Init("version 330");
 	
-	glfwSwapBuffers(window);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClearColor(0.6, 0.776, 0.556, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		/*ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		ImGui::ShowDemoWindow();*/
+
+		shaderProgram.activate();
+		glUniform1f(uniID, 1.5f);
+		amogus.bind();
+		vao1.bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		/*ImGui::Begin("Test window");
+		ImGui::Text("TEST");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
 	}
 
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-	glDeleteProgram(shaderProgram);
+	/*ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();*/
+
+	vao1.dispose();
+	vbo1.dispose();
+	ebo1.dispose();
+	amogus.dispose();
+	shaderProgram.dispose();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
