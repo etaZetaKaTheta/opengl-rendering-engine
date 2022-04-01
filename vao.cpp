@@ -5,7 +5,7 @@ VAO::VAO()
 	glGenVertexArrays(1, &id);
 }
 
-void VAO::linkAttrib(VBO vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
+void VAO::linkAttrib(VBO& vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
 {
 	vbo.bind();
 	glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
