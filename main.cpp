@@ -6,12 +6,14 @@
 #include <iostream>
 #include "glad/glad.h"
 #include "glfw/glfw3.h"
+#include "time.h"
 
 #include "shader.h"
 #include "vbo.h"
 #include "ebo.h"
 #include "vao.h"
 #include "texture.h"
+#include "camera.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -77,8 +79,6 @@ int main()
 	vbo1.unbind();
 	ebo1.unbind();
 
-	GLuint uniID = glGetUniformLocation(shaderProgram.id, "scale");
-
 	Texture amogus("textures/amogus.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	amogus.texUnit(shaderProgram, "tex0", 0);
 
@@ -87,10 +87,14 @@ int main()
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsClassic();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("version 330");
+	ImGui_ImplOpenGL3_Init("#version 330");
 	
 	float rotation = 0.5f;
 	double prevTime = glfwGetTime();
+
+	
+
+	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -99,41 +103,27 @@ int main()
 		glClearColor(0.3f, 0.388f, 0.278f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		Time::calculateDeltaTime();
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::ShowDemoWindow();
+
+		
 
 		shaderProgram.activate();
 
-		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1 / 60)
-		{
-			rotation += 0.5f;
-			prevTime = crntTime;
-		}
+		camera.matrix(45.0f, 0.01f, 1000.0f, shaderProgram, "camMatrix");
+		camera.inputs(window);
 
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		glm::mat4 viewMat = glm::mat4(1.0f);
-		glm::mat4 projMat = glm::mat4(1.0f);
-		modelMat = glm::rotate(modelMat, glm::radians(rotation), glm::vec3(0.1f, 1.0f, 0.1f));
-		viewMat = glm::translate(viewMat, glm::vec3(0.0f, -0.5f, -2.0f));
-		projMat = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / SCREEN_WIDTH, 0.1f, 100.0f);
-
-		int modelMatLoc = glGetUniformLocation(shaderProgram.id, "modelMat");
-		glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(modelMat));
-		int viewMatLoc = glGetUniformLocation(shaderProgram.id, "viewMat");
-		glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(viewMat));
-		int projMatLoc = glGetUniformLocation(shaderProgram.id, "projMat");
-		glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(projMat));
-
-		glUniform1f(uniID, 1.5f);
 		amogus.bind();
 		vao1.bind();
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
+		ImGui::SetNextWindowSize(ImVec2(350, 100));
 		ImGui::Begin("Test window");
-		ImGui::Text("TEST");
+		ImGui::Text("CamOrientation: %f, %f, %f", camera.orientation.x, camera.orientation.y, camera.orientation.z);
+		ImGui::Text("CamPosition: %f, %f, %f", camera.position.x, camera.position.y, camera.position.z);
 		ImGui::End();
 
 		ImGui::Render();
