@@ -141,5 +141,11 @@
     <None Include="shaders\default.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
+    <None Include="shaders\light.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
