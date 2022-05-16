@@ -78,6 +78,9 @@
     <ClCompile Include="time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -128,9 +131,18 @@
     <ClInclude Include="time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\amogus.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="textures\planksSpec.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="textures\planks.png">
       <Filter>Resource Files\textures</Filter>
     </Image>
   </ItemGroup>

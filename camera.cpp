@@ -8,7 +8,7 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	this->position = position;
 }
 
-void Camera::updateMatrix(float fovDeg, float nearPlane, float farPlane)
+void Camera::updateMatrix(float fovDeg, float nearPlane, float farPlane, int width, int height)
 {
 	glm::mat4 viewMat = glm::mat4(1.0f);
 	glm::mat4 projMat = glm::mat4(1.0f);
@@ -18,6 +18,8 @@ void Camera::updateMatrix(float fovDeg, float nearPlane, float farPlane)
 
 	cameraMatrix = projMat * viewMat;
 }
+
+
 
 void Camera::matrix(Shader& shader, const char* uniform)
 {
@@ -75,7 +77,6 @@ void Camera::inputs(GLFWwindow* window)
 		{
 			orientation = newOrientation;
 		}
-
 		orientation = glm::rotate(orientation, glm::radians(-rotY), up);
 
 		glfwSetCursorPos(window, (width / 2), (height / 2));

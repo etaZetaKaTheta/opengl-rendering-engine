@@ -1,14 +1,13 @@
 #pragma once
 
-#include "glad/glad.h"
+#include "shader.h"
+
 #include "glfw/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 #include "glm/gtx/vector_angle.hpp"
-
-#include "shader.h"
 
 class Camera
 {
@@ -28,7 +27,7 @@ public:
 
 	Camera(int width, int height, glm::vec3 position);
 
-	void updateMatrix(float fovDeg, float nearPlane, float farPlane);
+	void updateMatrix(float fovDeg, float nearPlane, float farPlane, int width, int height);
 	void matrix(Shader& shader, const char* uniform);
 
 	void inputs(GLFWwindow* window);
